@@ -44,7 +44,7 @@ function ResetForm() {
   }
 
   return (
-    <form onSubmit={onSubmit} className="flex flex-col gap-4">
+    <form method="post" onSubmit={onSubmit} className="flex flex-col gap-4">
       {error && <Alert kind="error">{error}</Alert>}
       <Field
         label="New password"
