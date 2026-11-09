@@ -11,7 +11,10 @@ async function relay(request: Request, ctx: RouteContext<"/storage-proxy/[...pat
   const e = env();
   if (!e.STORAGE_PROXY) return new Response("Not found", { status: 404 });
   const { path } = await ctx.params;
-  if (path[0] !== e.S3_BUCKET || path.length < 2) return new Response("Not found", { status: 404 });
+  // Dot segments would be normalized away by URL(), escaping the bucket prefix.
+  if (path[0] !== e.S3_BUCKET || path.length < 2 || path.some((s) => s === "." || s === ".." || s === "")) {
+    return new Response("Not found", { status: 404 });
+  }
 
   const target = new URL(`/${path.map(encodeURIComponent).join("/")}`, e.S3_ENDPOINT);
   target.search = new URL(request.url).search;
