@@ -32,7 +32,7 @@ export default function ForgotPasswordPage() {
       {sent ? (
         <Alert kind="success">If an account exists for that email, a reset link is on its way.</Alert>
       ) : (
-        <form onSubmit={onSubmit} className="flex flex-col gap-4">
+        <form method="post" onSubmit={onSubmit} className="flex flex-col gap-4">
           {error && <Alert kind="error">{error}</Alert>}
           <Field label="Email" name="email" type="email" autoComplete="email" required />
           <Button type="submit" disabled={pending}>

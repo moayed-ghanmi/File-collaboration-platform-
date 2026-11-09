@@ -27,6 +27,14 @@ test("protected API returns 401 without a session", async ({ request }) => {
   expect(res.status()).toBe(401);
 });
 
+test("auth forms never fall back to GET (which would put passwords in the URL)", async ({ request }) => {
+  for (const path of ["/sign-in", "/sign-up", "/reset-password?token=x", "/forgot-password"]) {
+    const html = await (await request.get(path)).text();
+    expect(html, path).toMatch(/<form[^>]*method="post"/);
+    expect(html, path).not.toMatch(/<form(?![^>]*method="post")[^>]*>/);
+  }
+});
+
 test("sign up → verify email → dashboard → sign out → sign in", async ({ page }) => {
   const email = uniqueEmail("signup");
   const password = "correct-horse-1";
