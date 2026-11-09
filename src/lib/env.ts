@@ -32,6 +32,13 @@ const schema = z.object({
     .string()
     .optional()
     .transform((v) => (v ?? "").split(",").map((s) => s.trim()).filter(Boolean)),
+  // "true" when the app runs inside a cross-site iframe (e.g. an embedded preview
+  // panel): session cookies become SameSite=None; Secure; Partitioned so the
+  // browser keeps them. Requires HTTPS. Leave unset for normal deployments.
+  AUTH_EMBEDDED_COOKIES: z
+    .string()
+    .optional()
+    .transform((v) => v === "true"),
   GOOGLE_CLIENT_ID: optional,
   GOOGLE_CLIENT_SECRET: optional,
 

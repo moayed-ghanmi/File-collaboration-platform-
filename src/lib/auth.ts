@@ -11,6 +11,9 @@ function createAuth() {
   return betterAuth({
     baseURL: e.BETTER_AUTH_URL,
     trustedOrigins: e.BETTER_AUTH_TRUSTED_ORIGINS,
+    ...(e.AUTH_EMBEDDED_COOKIES && {
+      advanced: { defaultCookieAttributes: { sameSite: "none", secure: true, partitioned: true } },
+    }),
     secret: e.BETTER_AUTH_SECRET,
     database: prismaAdapter(db(), { provider: "postgresql", transaction: true }),
     emailAndPassword: {
