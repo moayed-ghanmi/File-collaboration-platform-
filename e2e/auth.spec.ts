@@ -27,11 +27,12 @@ test("protected API returns 401 without a session", async ({ request }) => {
   expect(res.status()).toBe(401);
 });
 
-test("auth forms never fall back to GET (which would put passwords in the URL)", async ({ request }) => {
+test("auth forms never fall back to GET (which would put passwords in the URL)", async ({ page }) => {
   for (const path of ["/sign-in", "/sign-up", "/reset-password?token=x", "/forgot-password"]) {
-    const html = await (await request.get(path)).text();
-    expect(html, path).toMatch(/<form[^>]*method="post"/);
-    expect(html, path).not.toMatch(/<form(?![^>]*method="post")[^>]*>/);
+    await page.goto(path);
+    await expect(page.locator("form").first()).toBeVisible();
+    const methods = await page.locator("form").evaluateAll((forms) => forms.map((f) => f.getAttribute("method")));
+    expect(methods, path).toEqual(methods.map(() => "post"));
   }
 });
 
