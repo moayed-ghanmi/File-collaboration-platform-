@@ -48,6 +48,11 @@ services:
         done
         exit 1
 
+  # Local SMTP server that catches all outgoing email. Web UI on :8025.
+  mailpit:
+    image: axllent/mailpit:latest
+    ports: ["1025:1025", "8025:8025"]
+
 volumes:
   pgdata:
   storagedata:
