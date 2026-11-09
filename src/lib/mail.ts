@@ -11,6 +11,10 @@ let transporter: Transporter | undefined;
 export async function sendMail(mail: Mail): Promise<void> {
   const e = env();
   if (!e.SMTP_HOST) {
+    // Never log live verification/reset links (or grow the outbox) in production.
+    if (process.env.NODE_ENV === "production") {
+      throw new Error("SMTP_HOST is not configured; cannot send email in production");
+    }
     outbox.push(mail);
     if (process.env.NODE_ENV !== "test") {
       console.info(`[mail] to=${mail.to} subject="${mail.subject}"\n${mail.text}`);
