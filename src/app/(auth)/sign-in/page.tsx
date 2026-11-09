@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import Link from "next/link";
+import { AuthSwitchLink } from "@/components/auth-switch-link";
 import { connection } from "next/server";
 import { googleEnabled } from "@/lib/env";
 import { SignInForm } from "./sign-in-form";
@@ -17,9 +17,9 @@ export default function SignInPage() {
       <h1 className="text-2xl font-semibold">Sign in</h1>
       <p className="mt-1 mb-6 text-sm text-zinc-600 dark:text-zinc-400">
         New here?{" "}
-        <Link href="/sign-up" className="font-medium text-zinc-900 underline dark:text-zinc-100">
+        <AuthSwitchLink href="/sign-up">
           Create an account
-        </Link>
+        </AuthSwitchLink>
       </p>
       <Suspense>
         <SignInSection />

@@ -41,3 +41,17 @@ export function resetPasswordEmail(to: string, name: string, url: string): Mail 
     ),
   };
 }
+
+export function invitationEmail(to: string, inviter: string, team: string, role: string, url: string): Mail {
+  return {
+    to,
+    subject: `${inviter} invited you to ${team} on FileCollab`,
+    text: `${inviter} invited you to join ${team} on FileCollab as ${role.toLowerCase()}.\n\nAccept the invitation:\n${url}\n\nThis link expires in 7 days. Sign in or create an account with ${to} to accept.`,
+    html: layout(
+      `Join ${escapeHtml(team)}`,
+      `${escapeHtml(inviter)} invited you to join <strong>${escapeHtml(team)}</strong> on FileCollab as ${escapeHtml(role.toLowerCase())}. Sign in or create an account with ${escapeHtml(to)} to accept. This link expires in 7 days.`,
+      "View invitation",
+      url,
+    ),
+  };
+}

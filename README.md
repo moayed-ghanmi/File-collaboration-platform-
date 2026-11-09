@@ -67,3 +67,22 @@ domain in production), then set `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`. T
 8. Automated: `pnpm test` (auth integration tests) and `pnpm test:e2e` (6 Playwright
    flows: protected pages, protected API, sign-up + verification + sign-out/in, password
    reset, invalid reset link, rate limiting). Run `pnpm exec playwright install chromium` once first.
+
+## Phase 2 — how to test (teams & members)
+
+Roles: **Owner** (everything, incl. deleting the team), **Admin** (invite; manage members
+and viewers), **Member**, **Viewer**. A team always keeps at least one owner.
+
+1. `pnpm db:migrate`, `pnpm dev`, then sign up and verify two users (A and B), using two
+   browsers or a private window. Mail arrives in Mailpit at http://localhost:8025.
+2. As A, create a team on the dashboard. You land on `/teams/<slug>` as its owner.
+3. Invite B's email as Member. The invitation appears under "Pending invitations".
+4. As B, either click the link in the email (signed-out users go through sign-in or
+   sign-up and come back to the invitation) or accept it from the dashboard. B now sees
+   the team as a member without invite/remove controls.
+5. As A, change B's role with the dropdown, then remove B. B gets a 404 for the team.
+6. As A, try "Leave team": it's refused because A is the only owner. "Delete team" works.
+7. Edge cases: an invite link opened while signed in as a different email shows "Wrong
+   account". Links are single-use and expire after 7 days. Re-inviting replaces the old link.
+8. Automated: `pnpm test` (team permission tests in `src/lib/teams.integration.test.ts`)
+   and `pnpm test:e2e` (`e2e/teams.spec.ts`).

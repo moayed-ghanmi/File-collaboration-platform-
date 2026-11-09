@@ -55,7 +55,7 @@ test("sign up → verify email → dashboard → sign out → sign in", async ({
 
   // Profile: rename shows up in the header.
   await page.getByRole("link", { name: "Profile" }).click();
-  await page.getByLabel("Name").fill("Ada King");
+  await page.getByLabel("Name", { exact: true }).fill("Ada King");
   await page.getByRole("button", { name: "Save" }).click();
   await expect(page.getByText("Profile saved.")).toBeVisible();
   await expect(page.getByTestId("user-name")).toHaveText("Ada King");
