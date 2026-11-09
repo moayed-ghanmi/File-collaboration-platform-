@@ -21,6 +21,13 @@ jobs:
         options: >-
           --health-cmd "pg_isready -U filecollab"
           --health-interval 5s --health-retries 10
+      # File integration tests upload real objects (the tests create the bucket).
+      storage:
+        image: rustfs/rustfs:latest
+        env:
+          RUSTFS_ACCESS_KEY: filecollab
+          RUSTFS_SECRET_KEY: filecollab-secret
+        ports: ["9000:9000"]
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -34,5 +41,6 @@ jobs:
       - run: pnpm lint
       - run: pnpm typecheck
       - run: pnpm prisma migrate deploy
+      - run: timeout 60 sh -c 'until curl -s -o /dev/null http://localhost:9000; do sleep 2; done'
       - run: pnpm test
       - run: pnpm build

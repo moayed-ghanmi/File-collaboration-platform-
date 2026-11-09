@@ -38,3 +38,8 @@ export function canManageMember(actor: Role, target: Role): boolean {
   if (actor === "ADMIN") return target === "MEMBER" || target === "VIEWER";
   return false;
 }
+
+/** Upload, create folders, rename and delete. Viewers are read-only. */
+export function canEditFiles(role: Role): boolean {
+  return role !== "VIEWER";
+}

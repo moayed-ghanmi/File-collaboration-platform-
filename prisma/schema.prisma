@@ -27,6 +27,8 @@ model User {
   accounts      Account[]
   memberships   Membership[]
   invitations   Invitation[]
+  folders       Folder[]
+  files         File[]
 }
 
 model Session {
@@ -84,6 +86,8 @@ model Team {
   updatedAt   DateTime     @updatedAt
   memberships Membership[]
   invitations Invitation[]
+  folders     Folder[]
+  files       File[]
 }
 
 model Membership {
@@ -115,4 +119,48 @@ model Invitation {
 
   @@unique([teamId, email])
   @@index([email])
+}
+
+// Folder tree per team; parentId null means top level. Sibling names are kept
+// unique by the app (inside serializable transactions), since Postgres treats
+// NULL parents as distinct in unique indexes.
+model Folder {
+  id          String   @id @default(cuid())
+  name        String
+  teamId      String
+  parentId    String?
+  createdById String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  team        Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  parent      Folder?  @relation("FolderTree", fields: [parentId], references: [id], onDelete: Cascade)
+  children    Folder[] @relation("FolderTree")
+  files       File[]
+  createdBy   User?    @relation(fields: [createdById], references: [id], onDelete: SetNull)
+
+  @@index([teamId, parentId])
+}
+
+enum FileStatus {
+  UPLOADING // presigned upload issued, object not confirmed yet
+  READY
+}
+
+model File {
+  id          String     @id @default(cuid())
+  name        String
+  size        BigInt
+  contentType String
+  storageKey  String     @unique
+  status      FileStatus @default(UPLOADING)
+  teamId      String
+  folderId    String?
+  createdById String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  team        Team       @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  folder      Folder?    @relation(fields: [folderId], references: [id], onDelete: Cascade)
+  createdBy   User?      @relation(fields: [createdById], references: [id], onDelete: SetNull)
+
+  @@index([teamId, folderId, status])
 }

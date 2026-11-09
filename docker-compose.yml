@@ -30,7 +30,8 @@ services:
     ports: ["9000:9000", "9001:9001"]
     volumes: [storagedata:/data]
 
-  # One-shot job that creates the app bucket once storage accepts requests.
+  # One-shot job that creates the app bucket once storage accepts requests, and
+  # allows browser uploads from the dev server (:3000) and E2E server (:3100).
   storage-init:
     image: amazon/aws-cli:latest
     depends_on: [storage]
@@ -41,12 +42,22 @@ services:
     entrypoint: ["/bin/sh", "-c"]
     command:
       - |
+        set -e
         for i in $$(seq 1 30); do
-          aws --endpoint-url http://storage:9000 s3api head-bucket --bucket filecollab 2>/dev/null && exit 0
-          aws --endpoint-url http://storage:9000 s3 mb s3://filecollab && exit 0
+          aws --endpoint-url http://storage:9000 s3api head-bucket --bucket filecollab 2>/dev/null && break
+          aws --endpoint-url http://storage:9000 s3 mb s3://filecollab && break
+          [ "$$i" = 30 ] && exit 1
           sleep 2
         done
-        exit 1
+        aws --endpoint-url http://storage:9000 s3api put-bucket-cors --bucket filecollab --cors-configuration '{
+          "CORSRules": [{
+            "AllowedOrigins": ["http://localhost:3000", "http://localhost:3100"],
+            "AllowedMethods": ["PUT", "GET"],
+            "AllowedHeaders": ["*"],
+            "ExposeHeaders": ["ETag"],
+            "MaxAgeSeconds": 3600
+          }]
+        }'
 
   # Local SMTP server that catches all outgoing email. Web UI on :8025.
   mailpit:

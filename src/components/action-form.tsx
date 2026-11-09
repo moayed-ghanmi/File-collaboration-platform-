@@ -21,15 +21,20 @@ export function ActionForm({
   confirm?: string;
 }) {
   const [state, formAction] = useActionState(action, null);
+  const message = state?.error ? (
+    <Alert kind="error">{state.error}</Alert>
+  ) : state?.success ? (
+    <Alert kind="success">{state.success}</Alert>
+  ) : null;
   return (
     <form
       action={formAction}
-      className={className}
+      className={message ? "flex flex-col gap-2" : undefined}
       onSubmit={confirm ? (e) => void (!window.confirm(confirm) && e.preventDefault()) : undefined}
     >
-      {state?.error && <Alert kind="error">{state.error}</Alert>}
-      {state?.success && <Alert kind="success">{state.success}</Alert>}
-      {children}
+      {/* Outside the caller's layout so a message never squeezes a row of inputs. */}
+      {message}
+      <div className={className}>{children}</div>
     </form>
   );
 }
@@ -38,16 +43,20 @@ export function SubmitButton({
   children,
   pendingText,
   variant,
+  size,
   className,
+  "aria-label": ariaLabel,
 }: {
   children: ReactNode;
   pendingText?: string;
   variant?: "primary" | "secondary" | "danger";
+  size?: "sm" | "md";
   className?: string;
+  "aria-label"?: string;
 }) {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" variant={variant} disabled={pending} className={className}>
+    <Button type="submit" variant={variant} size={size} disabled={pending} className={className} aria-label={ariaLabel}>
       {pending && pendingText ? pendingText : children}
     </Button>
   );

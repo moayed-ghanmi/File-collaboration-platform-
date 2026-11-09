@@ -6,6 +6,8 @@ import { db } from "./db";
 import { env } from "./env";
 import { sendMail } from "./mail";
 import { invitationEmail } from "./emails";
+import { deletePrefix } from "./storage";
+import { teamStoragePrefix } from "./files";
 import { assignableRoles, canManageMember, canManageTeam, ROLE_LABEL, type Role } from "./roles";
 
 /** Expected, user-facing failure (permission, validation, not found). */
@@ -146,6 +148,8 @@ export async function deleteTeam(actorId: string, teamId: string) {
   const me = await membershipOf(actorId, teamId);
   if (me.role !== "OWNER") throw new TeamError("Only owners can delete the team.");
   await db().team.delete({ where: { id: teamId } });
+  // After the rows are gone, so a storage failure can't leave a half-deleted team.
+  await deletePrefix(teamStoragePrefix(teamId)).catch((e) => console.error("[storage] team cleanup failed", teamId, e));
 }
 
 // ---------------------------------------------------------------------------
