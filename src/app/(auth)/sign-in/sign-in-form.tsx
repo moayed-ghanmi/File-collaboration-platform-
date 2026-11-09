@@ -48,7 +48,7 @@ export function SignInForm({ google }: { google: boolean }) {
           <Divider />
         </>
       )}
-      <form onSubmit={onSubmit} className="flex flex-col gap-4">
+      <form method="post" onSubmit={onSubmit} className="flex flex-col gap-4">
         {error && <Alert kind="error">{error}</Alert>}
         {info && <Alert kind="info">{info}</Alert>}
         <Field label="Email" name="email" type="email" autoComplete="email" required />

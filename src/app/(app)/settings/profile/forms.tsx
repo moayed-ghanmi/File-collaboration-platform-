@@ -24,7 +24,7 @@ export function ProfileForm({ name, email, emailVerified }: { name: string; emai
   }
 
   return (
-    <form onSubmit={onSubmit} className="flex flex-col gap-4">
+    <form method="post" onSubmit={onSubmit} className="flex flex-col gap-4">
       {status && <Alert kind={status.kind}>{status.text}</Alert>}
       <Field label="Name" name="name" defaultValue={name} required maxLength={100} />
       <div className="flex flex-col gap-1.5">
@@ -76,7 +76,7 @@ export function ChangePasswordForm() {
   }
 
   return (
-    <form onSubmit={onSubmit} className="flex flex-col gap-4">
+    <form method="post" onSubmit={onSubmit} className="flex flex-col gap-4">
       {status && <Alert kind={status.kind}>{status.text}</Alert>}
       <Field label="Current password" name="currentPassword" type="password" autoComplete="current-password" required />
       <Field
