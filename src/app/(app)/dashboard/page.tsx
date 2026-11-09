@@ -30,11 +30,11 @@ async function PendingInvitations() {
             <div className="flex gap-2">
               <ActionForm action={acceptInvitationAction}>
                 <input type="hidden" name="invitationId" value={i.id} />
-                <SubmitButton className="px-3 py-1.5">Accept</SubmitButton>
+                <SubmitButton size="sm">Accept</SubmitButton>
               </ActionForm>
               <ActionForm action={declineInvitationAction}>
                 <input type="hidden" name="invitationId" value={i.id} />
-                <SubmitButton variant="secondary" className="px-3 py-1.5">
+                <SubmitButton variant="secondary" size="sm">
                   Decline
                 </SubmitButton>
               </ActionForm>

@@ -5,6 +5,7 @@ import { requireSession } from "@/lib/session";
 import { getTeamForMember } from "@/lib/teams";
 import { assignableRoles, canManageMember, canManageTeam, ROLE_DESCRIPTION, ROLE_LABEL, ROLES } from "@/lib/roles";
 import { Card, Field } from "@/components/ui";
+import { TeamTabs } from "./tabs";
 import { ActionForm, AutoSubmitSelect, Select, SubmitButton } from "@/components/action-form";
 import {
   changeRoleAction,
@@ -41,6 +42,7 @@ async function Team({ params }: { params: PageProps<"/teams/[slug]">["params"] }
           of this team · {team.members.length} {team.members.length === 1 ? "member" : "members"}
         </p>
       </div>
+      <TeamTabs slug={team.slug} active="members" />
 
       <Card title="Members">
         <ul className="divide-y divide-zinc-200 dark:divide-zinc-800">
@@ -78,7 +80,7 @@ async function Team({ params }: { params: PageProps<"/teams/[slug]">["params"] }
                     <ActionForm action={removeMemberAction} confirm={`Remove ${m.name} from ${team.name}?`}>
                       {hidden("teamId", team.id)}
                       {hidden("userId", m.userId)}
-                      <SubmitButton variant="danger" className="px-2.5 py-1 text-xs">
+                      <SubmitButton variant="danger" size="sm">
                         Remove
                       </SubmitButton>
                     </ActionForm>
@@ -126,7 +128,7 @@ async function Team({ params }: { params: PageProps<"/teams/[slug]">["params"] }
                     </p>
                     <ActionForm action={revokeInvitationAction}>
                       {hidden("invitationId", i.id)}
-                      <SubmitButton variant="secondary" className="px-2.5 py-1 text-xs">
+                      <SubmitButton variant="secondary" size="sm">
                         Revoke
                       </SubmitButton>
                     </ActionForm>

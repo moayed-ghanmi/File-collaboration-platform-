@@ -40,6 +40,25 @@ domain in production), then set `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`. T
 | `pnpm test:e2e` | Browser tests (Playwright; needs `docker compose up -d`) |
 | `pnpm db:migrate` | Create/apply Prisma migrations |
 
+## Running behind a tunnel or preview URL
+
+When the app is opened through a public URL that proxies to `localhost` (e.g. a
+Hoplite preview), put these in `.env.local` (gitignored):
+
+- `BETTER_AUTH_URL`: the public URL, so email links point to it.
+- `BETTER_AUTH_TRUSTED_ORIGINS`: any origin the proxy rewrites the browser's
+  `Origin` header to (comma-separated; for Hoplite previews, `http://localhost:3000`).
+- `STORAGE_PROXY=true`: browsers can't reach storage on `localhost:9000`, so presigned
+  URLs go through the app at `/storage-proxy`. This only relays signed requests,
+  and storage still checks each signature.
+- `AUTH_EMBEDDED_COOKIES=true`: when the app is shown inside another site's iframe
+  (like the Hoplite Preview panel), browsers drop normal session cookies and sign-in
+  silently bounces back to `/sign-in`. This makes session cookies
+  `SameSite=None; Secure; Partitioned`. Requires HTTPS. Leave it off in production.
+
+`.hoplite/settings.json` also exposes Mailpit as a second preview port, so verification
+and invite emails can be opened from the preview.
+
 ## Phase 0 — how to test
 
 1. `docker compose up -d`, then `docker compose ps -a`: postgres and redis are `healthy`,
@@ -86,3 +105,23 @@ and viewers), **Member**, **Viewer**. A team always keeps at least one owner.
    account". Links are single-use and expire after 7 days. Re-inviting replaces the old link.
 8. Automated: `pnpm test` (team permission tests in `src/lib/teams.integration.test.ts`)
    and `pnpm test:e2e` (`e2e/teams.spec.ts`).
+
+## Phase 3 — how to test (files & folders)
+
+Uploads go straight from the browser to storage using presigned URLs, so file bytes
+never pass through the app server. That requires bucket **CORS** for the app's origin.
+`docker compose up` sets it for `http://localhost:3000` and `:3100`. In production,
+allow `PUT` and `GET` from your app's domain on the bucket, and set `S3_PUBLIC_ENDPOINT`
+if browsers reach storage on a different URL than the server does.
+
+1. `docker compose up -d` (re-run it so `storage-init` applies CORS), `pnpm db:migrate`, `pnpm dev`.
+2. Open a team → **Files**. Upload several files (button or drag-and-drop). A progress
+   bar shows per file. Uploading a name that already exists saves it as `name (2).ext`.
+3. Create a folder, open it (breadcrumbs update), upload into it, rename and delete files.
+4. Click a file name to download it.
+5. Invite a second user as **Viewer**: they can browse and download, but see no upload,
+   rename, delete or new-folder controls.
+6. Delete a folder: everything inside is removed, including the stored objects (check
+   the RustFS console at http://localhost:9001).
+7. Automated: `pnpm test` (`src/lib/files.integration.test.ts` runs against real storage)
+   and `pnpm test:e2e` (`e2e/files.spec.ts`).

@@ -13,9 +13,32 @@ const schema = z.object({
   S3_ACCESS_KEY_ID: z.string().min(1),
   S3_SECRET_ACCESS_KEY: z.string().min(1),
   S3_BUCKET: z.string().min(1),
+  // Endpoint browsers use for presigned upload/download URLs, when it differs
+  // from S3_ENDPOINT (e.g. the app reaches storage on an internal hostname).
+  S3_PUBLIC_ENDPOINT: optional.pipe(z.string().url().optional()),
+  // "true" when browsers can't reach storage at all (previews, tunnels): presigned
+  // URLs then go through the app at /storage-proxy, which only relays signed requests.
+  STORAGE_PROXY: z
+    .string()
+    .optional()
+    .transform((v) => v === "true"),
+  MAX_UPLOAD_BYTES: z.coerce.number().int().positive().default(100 * 1024 * 1024),
 
   BETTER_AUTH_SECRET: z.string().min(32, "must be at least 32 characters"),
   BETTER_AUTH_URL: z.string().url(),
+  // Extra comma-separated origins allowed to call auth endpoints, e.g. when a
+  // tunnel or reverse proxy rewrites the browser's Origin header.
+  BETTER_AUTH_TRUSTED_ORIGINS: z
+    .string()
+    .optional()
+    .transform((v) => (v ?? "").split(",").map((s) => s.trim()).filter(Boolean)),
+  // "true" when the app runs inside a cross-site iframe (e.g. an embedded preview
+  // panel): session cookies become SameSite=None; Secure; Partitioned so the
+  // browser keeps them. Requires HTTPS. Leave unset for normal deployments.
+  AUTH_EMBEDDED_COOKIES: z
+    .string()
+    .optional()
+    .transform((v) => v === "true"),
   GOOGLE_CLIENT_ID: optional,
   GOOGLE_CLIENT_SECRET: optional,
 
