@@ -4,9 +4,9 @@ import path from "node:path";
 export default defineConfig({
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "src"),
+      "@": path.resolve(import.meta.dirname, "src"),
       // Next's server-only guard has no meaning outside the Next bundler.
-      "server-only": path.resolve(__dirname, "src/test/empty.ts"),
+      "server-only": path.resolve(import.meta.dirname, "src/test/empty.ts"),
     },
   },
   test: {

@@ -26,13 +26,21 @@ export async function linkFromEmail(to: string, subject: RegExp): Promise<string
   return link!;
 }
 
-export async function signUp(page: Page, name: string, email: string, password: string) {
-  await page.goto("/sign-up");
-  await page.getByLabel("Name").fill(name);
-  await page.getByLabel("Email").fill(email);
-  await page.getByLabel("Password", { exact: true }).fill(password);
-  await page.getByLabel("Confirm password").fill(password);
-  await page.getByRole("button", { name: "Create account" }).click();
+export async function signUp(
+  page: Page,
+  name: string,
+  email: string,
+  password: string,
+  { navigate = true }: { navigate?: boolean } = {},
+) {
+  if (navigate) await page.goto("/sign-up");
+  // Scoped: after client navigation the previous (hidden) page can still be mounted.
+  const form = page.locator("form").filter({ has: page.getByRole("button", { name: "Create account" }) });
+  await form.getByLabel("Name").fill(name);
+  await form.getByLabel("Email").fill(email);
+  await form.getByLabel("Password", { exact: true }).fill(password);
+  await form.getByLabel("Confirm password").fill(password);
+  await form.getByRole("button", { name: "Create account" }).click();
   await expect(page).toHaveURL(/\/check-email/);
 }
 

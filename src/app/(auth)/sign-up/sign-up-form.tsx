@@ -1,13 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { safeRedirect } from "@/lib/safe-redirect";
 import { authClient } from "@/lib/auth-client";
 import { Alert, Button, Field } from "@/components/ui";
 import { Divider, GoogleButton } from "@/components/google-button";
 
 export function SignUpForm({ google }: { google: boolean }) {
   const router = useRouter();
+  const next = safeRedirect(useSearchParams().get("next"));
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
 
@@ -26,7 +28,7 @@ export function SignUpForm({ google }: { google: boolean }) {
       name: String(form.get("name")).trim(),
       email,
       password,
-      callbackURL: "/dashboard", // where the verification link lands
+      callbackURL: next, // where the verification link lands
     });
     setPending(false);
     if (error) {
@@ -40,7 +42,7 @@ export function SignUpForm({ google }: { google: boolean }) {
     <div className="flex flex-col gap-4">
       {google && (
         <>
-          <GoogleButton callbackURL="/dashboard" />
+          <GoogleButton callbackURL={next} />
           <Divider />
         </>
       )}

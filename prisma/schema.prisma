@@ -26,6 +26,7 @@ model User {
   sessions      Session[]
   accounts      Account[]
   memberships   Membership[]
+  invitations   Invitation[]
 }
 
 model Session {
@@ -82,6 +83,7 @@ model Team {
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
   memberships Membership[]
+  invitations Invitation[]
 }
 
 model Membership {
@@ -95,4 +97,22 @@ model Membership {
 
   @@unique([userId, teamId])
   @@index([teamId])
+}
+
+// Pending team invitations. Only a SHA-256 hash of the emailed token is stored;
+// the row is deleted when the invitation is accepted or revoked.
+model Invitation {
+  id          String   @id @default(cuid())
+  email       String // stored lowercased
+  role        Role     @default(MEMBER)
+  tokenHash   String   @unique
+  teamId      String
+  invitedById String
+  expiresAt   DateTime
+  createdAt   DateTime @default(now())
+  team        Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  invitedBy   User     @relation(fields: [invitedById], references: [id], onDelete: Cascade)
+
+  @@unique([teamId, email])
+  @@index([email])
 }
