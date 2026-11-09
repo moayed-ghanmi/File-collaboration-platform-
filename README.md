@@ -51,6 +51,10 @@ Hoplite preview), put these in `.env.local` (gitignored):
 - `STORAGE_PROXY=true`: browsers can't reach storage on `localhost:9000`, so presigned
   URLs go through the app at `/storage-proxy`. This only relays signed requests,
   and storage still checks each signature.
+- `AUTH_EMBEDDED_COOKIES=true`: when the app is shown inside another site's iframe
+  (like the Hoplite Preview panel), browsers drop normal session cookies and sign-in
+  silently bounces back to `/sign-in`. This makes session cookies
+  `SameSite=None; Secure; Partitioned`. Requires HTTPS. Leave it off in production.
 
 `.hoplite/settings.json` also exposes Mailpit as a second preview port, so verification
 and invite emails can be opened from the preview.
