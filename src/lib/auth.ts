@@ -10,6 +10,7 @@ function createAuth() {
   const e = env();
   return betterAuth({
     baseURL: e.BETTER_AUTH_URL,
+    trustedOrigins: e.BETTER_AUTH_TRUSTED_ORIGINS,
     secret: e.BETTER_AUTH_SECRET,
     database: prismaAdapter(db(), { provider: "postgresql", transaction: true }),
     emailAndPassword: {

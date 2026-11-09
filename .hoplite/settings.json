@@ -1,0 +1,32 @@
+{
+	"version": 1,
+	"inference": {
+		"run": {
+			"detectorVersion": 4,
+			"framework": "nextjs",
+			"workspacePath": null
+		}
+	},
+	"ports": {
+		"preview": 3000,
+		"additional": {
+			"mailpit": 8025
+		}
+	},
+	"services": [],
+	"scripts": {
+		"setup": {
+			"enabled": true,
+			"command": "test -f .env || cp .env.example .env; docker compose up -d && pnpm install && pnpm prisma migrate deploy && pnpm prisma generate"
+		},
+		"run": {
+			"enabled": true,
+			"command": "pnpm dev"
+		},
+		"archive": {
+			"enabled": true,
+			"command": null
+		}
+	},
+	"mcpServers": []
+}

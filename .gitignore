@@ -47,3 +47,7 @@ next-env.d.ts
 /test-results/
 /playwright-report/
 /blob-report/
+
+# Hoplite workspace runtime (settings.json is versioned)
+/.hoplite/artifacts/
+/.hoplite/runtime/

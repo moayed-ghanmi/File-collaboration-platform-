@@ -40,6 +40,21 @@ domain in production), then set `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`. T
 | `pnpm test:e2e` | Browser tests (Playwright; needs `docker compose up -d`) |
 | `pnpm db:migrate` | Create/apply Prisma migrations |
 
+## Running behind a tunnel or preview URL
+
+When the app is opened through a public URL that proxies to `localhost` (e.g. a
+Hoplite preview), put these in `.env.local` (gitignored):
+
+- `BETTER_AUTH_URL`: the public URL, so email links point to it.
+- `BETTER_AUTH_TRUSTED_ORIGINS`: any origin the proxy rewrites the browser's
+  `Origin` header to (comma-separated; for Hoplite previews, `http://localhost:3000`).
+- `STORAGE_PROXY=true`: browsers can't reach storage on `localhost:9000`, so presigned
+  URLs go through the app at `/storage-proxy`. This only relays signed requests,
+  and storage still checks each signature.
+
+`.hoplite/settings.json` also exposes Mailpit as a second preview port, so verification
+and invite emails can be opened from the preview.
+
 ## Phase 0 — how to test
 
 1. `docker compose up -d`, then `docker compose ps -a`: postgres and redis are `healthy`,
