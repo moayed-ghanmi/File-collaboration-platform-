@@ -29,8 +29,10 @@ jobs:
           node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      # Auth integration tests need the app env and a migrated database.
+      - run: cp .env.example .env
       - run: pnpm lint
       - run: pnpm typecheck
-      - run: pnpm test
       - run: pnpm prisma migrate deploy
+      - run: pnpm test
       - run: pnpm build
